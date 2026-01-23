@@ -32,11 +32,6 @@ public class PokemonController {
         PokemonEntity pokemon = pokemonService.getPokemonDetails(id);
         long duration = System.currentTimeMillis() - startTime;
 
-        if (pokemon == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(String.format("Pokemon not found with id %d. Time: %d ms.", id, duration));
-        }
-
         String responseMessage = String.format(
                 "Find Pokemon | ID: %d, Name: %s, Type: %s, Level: %d, Power: %d. | Time: %d ms.",
                 pokemon.getId(), pokemon.getName(), pokemon.getType(), pokemon.getLevel(), pokemon.getPower(), duration

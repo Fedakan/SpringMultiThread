@@ -2,7 +2,6 @@ package org.example.springmultithread.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.springmultithread.entity.PokemonEntity;
-import org.example.springmultithread.exceptions.GlobalExceprionHandler;
 import org.example.springmultithread.exceptions.PokemonNotFoundException;
 import org.example.springmultithread.repository.PokemonRepository;
 
