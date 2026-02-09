@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/api/pokemon")
@@ -18,6 +19,21 @@ public class PokemonController {
 
     public PokemonController(PokemonService pokemonService) {
         this.pokemonService = pokemonService;
+    }
+
+    @GetMapping("{id}/async")
+    public CompletableFuture<ResponseEntity<String>> getPokemonAsync(@PathVariable int id) {
+        long startTime = System.currentTimeMillis();
+
+        return pokemonService.getPokemonDetailsAsync(id)
+                .thenApply(pokemon -> {
+                    long duration = System.currentTimeMillis() - startTime;
+                    String message = String.format(
+                            "Async Find | Thread: %s | ID: %d, Name: %s | Time: %d ms.",
+                            Thread.currentThread().getName(), pokemon.getId(), pokemon.getName(), duration
+                    );
+                    return ResponseEntity.ok(message);
+                });
     }
 
     @PostMapping("/addPokemon")

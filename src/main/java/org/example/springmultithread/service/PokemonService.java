@@ -8,10 +8,13 @@ import org.example.springmultithread.repository.PokemonRepository;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -30,15 +33,28 @@ public class PokemonService {
     @Cacheable(value = "pokemonCache", key = "#pokemonId")
     public PokemonEntity getPokemonDetails(int pokemonId) {
         log.info(">>>>>Loading pokemon details for Id: {}. It must occur once!", pokemonId);
+        simulateSlowService();
+        return pokemonRepository.findById(pokemonId)
+                .orElseThrow(() -> new PokemonNotFoundException(pokemonId));
+    }
 
+    private static void simulateSlowService() {
         try {
             TimeUnit.SECONDS.sleep(2);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-        return pokemonRepository.findById(pokemonId)
-                .orElseThrow(() -> new PokemonNotFoundException(pokemonId));
     }
+
+    @Async("pokemonExecutor")
+    public CompletableFuture<PokemonEntity> getPokemonDetailsAsync(@PathVariable int pokemonId) {
+        log.info(">>>> [THREAD: {}] Async loading for Id: {}",
+                Thread.currentThread().getName(), pokemonId);
+        PokemonEntity pokemon = getPokemonDetails(pokemonId);
+        return CompletableFuture.completedFuture(pokemon);
+
+    }
+
 
     @CacheEvict(value = "pokemonCache", key = "#pokemonId")
     public PokemonEntity updateLevel(int pokemonId, int newLevel) {
