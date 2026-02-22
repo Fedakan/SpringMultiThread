@@ -77,4 +77,25 @@ public class PokemonController {
         PokemonEntity updated = pokemonService.givePowerLevel(id, newPower);
         return updated != null ? ResponseEntity.ok(updated) : ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
+
+    @PostMapping("/battle")
+    public ResponseEntity<String> battlePokemon(@RequestParam int attackingPokemon, @RequestParam int defendingPokemon) {
+        PokemonEntity winnerPokemon = pokemonService.battle(attackingPokemon, defendingPokemon);
+        if (winnerPokemon == null) {
+            return ResponseEntity.ok("It`s a draw!");
+        }
+        return ResponseEntity.ok("The battle is over! Winner: " + winnerPokemon.getName() +
+                " (Level: " + winnerPokemon.getLevel() + ")");
+    }
+
+    @PutMapping("/powerByType")
+    public ResponseEntity<List<PokemonEntity>> updatePowerByType(@RequestParam String type, @RequestParam int newPower) {
+        List<PokemonEntity> updated = pokemonService.boostPokemonByTypes(type, newPower);
+        if (updated.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(updated);
+    }
+
 }
+
